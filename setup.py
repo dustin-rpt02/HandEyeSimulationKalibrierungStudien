@@ -20,6 +20,7 @@ setup(
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
+            'test = hand_eye_simulation_calibration.objekt_erkennung:main'
         ],
     },
 )
