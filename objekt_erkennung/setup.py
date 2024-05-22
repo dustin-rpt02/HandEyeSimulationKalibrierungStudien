@@ -1,6 +1,6 @@
 from setuptools import setup
 
-package_name = 'hand_eye_simulation_calibration'
+package_name = 'objekt_erkennung'
 
 setup(
     name=package_name,
@@ -20,7 +20,7 @@ setup(
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
-            'test = hand_eye_simulation_calibration.objekt_erkennung:main'
+            'test = objekt_erkennung.objekt_erkennung:main'
         ],
     },
 )
