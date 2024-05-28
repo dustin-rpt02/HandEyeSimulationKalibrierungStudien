@@ -1,0 +1,4 @@
+<?xml version='1.0' ?>
+<launch>
+  <include file="$(find-pkg-share load_gazebo)/launch/spawn_robot_description.launch.py"/>
+</launch>

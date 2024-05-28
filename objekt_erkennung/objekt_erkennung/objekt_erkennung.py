@@ -25,55 +25,39 @@ class Objekt_Erkennung(Node):
 		self.subscription.destroy()
 
 		point_cloud = point_cloud2.read_points_list(msg, skip_nans=True)
-		#print(type(test))
 		point_cloud_array = np.array(point_cloud, dtype=np.float32)
 		point_cloud_array = np.delete(point_cloud_array, 3, 1)
-		#print(test[0])
-
-		"""template_ = o3d.geometry.PointCloud()
-		template_.points = o3d.utility.Vector3dVector(test)
-		o3d.io.write_point_cloud("src/test_point_cloud/data/pointcloud_guitar2.pcd", template_)
-		o3d.visualization.draw_geometries([template_])"""
 
 		self.filter_point_cloud(point_cloud_array)
 
 
 
 	def filter_point_cloud(self, point_cloud_array):
-		max_z = 0.606
+		max_z = 0.606 # noch zu definierender Parameter beim Programmaufruf, gibt die Entfernung der Kamera zum Arbeitsbereich an
 		point_cloud_array = point_cloud_array[(point_cloud_array[:,2] < max_z)]
-
-		self.get_object_position(point_cloud_array)
-
-
-	def get_object_position(self, point_cloud_array):
 		mittelpunkt = np.mean(point_cloud_array, axis=0)
+
+		self.scale_object(point_cloud_array, mittelpunkt)
+
+
+
+	def scale_object(self, point_cloud_array, mittelpunkt):
 		point_cloud_array -= mittelpunkt
-		mittelpunkt = np.mean(point_cloud_array, axis=0)
 
-		self.scale_object(point_cloud_array)
-
-
-
-	def scale_object(self, point_cloud_array):
 		arr_max = point_cloud_array.max(axis=0)
 		arr_min = point_cloud_array.min(axis=0)
 
-		skalierung = 0.9
+		skalierung = 1
 		multiplicator_matrix = np.concatenate((1/arr_max*skalierung, -1/arr_min*skalierung))
 
 		multiplicator = multiplicator_matrix[np.argmin(multiplicator_matrix)]
 		point_cloud_array *= multiplicator
 
-		self.predict_object(point_cloud_array)
+		self.predict_object(point_cloud_array, mittelpunkt)
 
 
 
-	def predict_object(self, point_cloud_array):
-		"""for index in range(2000):
-		random_index = np.random.randint(0, len(array))
-		array = np.delete(array, random_index, 0)"""
-
+	def predict_object(self, point_cloud_array, mittelpunkt):
 		output = self.classify_object(point_cloud_array)[0]
 		testset = ClassificationData(ModelNet40Data(train=False))
 
@@ -81,13 +65,8 @@ class Objekt_Erkennung(Node):
 		labels = [testset.get_shape(6), testset.get_shape(7), testset.get_shape(9), testset.get_shape(17)]
 		prediction = labels[torch.argmax(values).item()]
 
-		#print(labels)
-		#print(values)
 		print("Predicted Label:    ", prediction)
-
-		"""template_ = o3d.geometry.PointCloud()
-		template_.points = o3d.utility.Vector3dVector(array)
-		o3d.visualization.draw_geometries([template_])"""
+		#TODO load_gazebo package mit Parametern prediction und mittelpunkt starten, um erkanntes Objekt in Simulation zu laden
 
 
 
